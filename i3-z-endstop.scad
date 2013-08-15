@@ -32,16 +32,6 @@ module z_frame() {
   translate([-1*(rod_diam/2+thickness+3),-rod_diam/2-thickness*2,-height/2])
     cube([rod_diam+thickness*2+3,rod_diam+frame_thickness+rod_frame_gap+thickness*3,height]);
 
-  /*
-  // clamp area
-  translate([-3,-8,0])
-    cube([rod_diam+thickness*2+6,rod_diam+thickness,height],center=true);
-
-  // joint between clamp and endstop
-  translate([0,-8,0])
-    translate([-8,-0.25*(6+thickness),0]) cube([6.1+thickness,5.5+thickness*2,height],center=true);
-    */
-
   // endstop mount
   translate([-rod_endstop_center_to_center+3,3,0])
     cube([endstop_width+thickness*2+6,endstop_length+thickness*2,height],center=true);
@@ -57,29 +47,13 @@ module z_holes() {
   //translate([0,-1*(rod_diam),0]) cube([2,rod_diam*2+thickness,height*2],center=true);
   translate([0,rod_diam,0]) cube([2,rod_diam*2+thickness,height*2],center=true);
 
-  // clamp screw
-  /*
-  translate([0,-rod_diam,0]) rotate([90,0,0]) rotate([0,90,0]) cylinder(r=3.1*da6,h=rod_diam+thickness*3,$fn=6,center=true);
-
-  translate([0,-rod_diam,0]) {
-    // captive clamp nut
-    translate([-rod_diam/2-thickness+.5,0,0]) {
-      rotate([0,90,0]) cylinder(r=5.5*da6,h=6,$fn=6,center=true);
-      translate([0,0,height/2]) cube([6,5.5,height],center=true);
-    }
-
-    // clamp screw recess
-    translate([rod_diam/2+thickness/1.5,0,0]) rotate([90,0,0]) rotate([0,90,0]) cylinder(r=6.5*da6,h=5,$fn=6,center=true);
-  }
-  */
-
+  // clamp screw shaft
   translate([0,rod_diam,0]) rotate([90,0,0]) rotate([0,90,0]) {
     cylinder(r=3.1*da6,h=rod_diam+thickness*4,$fn=6,center=true);
 
     translate([3,height/2,0])
       % cylinder(r=3.1*da6,h=rod_diam+thickness*4,$fn=6,center=true);
   }
-
 
   translate([0,rod_diam,0]) {
     // captive clamp nut
@@ -93,11 +67,6 @@ module z_holes() {
   }
 
   // empty space between rod clamp and frame
-  /*
-  translate([0,rod_frame_center_to_center/2,0])
-    cube([rod_diam,rod_frame_gap-thickness*2,height*2],center=true);
-    */
-
   translate([0,rod_frame_gap/2+4+thickness,0])
     cube([rod_diam+thickness+3,rod_frame_gap-thickness*2-8,height*2],center=true);
 
