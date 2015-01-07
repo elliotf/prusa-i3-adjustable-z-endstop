@@ -1,11 +1,17 @@
+include <util.scad>;
 //
 // i3-z-endstop.scad
 //
 
+left  = -1;
+right = 1;
+front = -1;
+rear  = 1;
+
 da6 = 1 / cos(180 / 6) / 2;
 
 clearance       = 0.25;
-frame_thickness = 6.5;
+frame_thickness = 6.15;
 rod_diam        = 8 + clearance;
 rod_frame_gap   = 24.75;
 rod_frame_center_to_center = rod_frame_gap + frame_thickness/2 + rod_diam/2;
@@ -17,6 +23,9 @@ endstop_height = 8;
 
 thickness = 3;
 height    = 10;
+
+extrusion_width  = 0.5;
+extrusion_height = 0.3;
 
 module z_endstop_holder() {
   difference() {
@@ -45,7 +54,7 @@ module z_holes() {
   // smooth rod slot
   cylinder(r=(rod_diam+0.25)/2,h=height*2,$fn=72,center=true);
   //translate([0,-1*(rod_diam),0]) cube([2,rod_diam*2+thickness,height*2],center=true);
-  translate([0,rod_diam,0]) cube([2,rod_diam*2+thickness,height*2],center=true);
+  # translate([0,rod_diam,0]) cube([2,rod_diam*2+thickness,height*2],center=true);
 
   // clamp screw shaft
   translate([0,rod_diam,0]) rotate([90,0,0]) rotate([0,90,0]) {
@@ -86,9 +95,11 @@ module z_holes() {
     translate([endstop_width-5,0,height/2]) cube([11,3,2],center=true);
     translate([endstop_width-5,0,-height/2]) cube([11,3,2],center=true);
   }
+
+  % translate([-1,-rod_diam,0]) rotate([90,0,0]) rotate([0,90,0]) cylinder(r=3/2,h=10,$fn=32,center=true);
+  % translate([rod_diam,rod_frame_gap/2+rod_diam/2,height/2]) cube([1,rod_frame_gap,1],center=true);
 }
 
-% translate([-1,-rod_diam,0]) rotate([90,0,0]) rotate([0,90,0]) cylinder(r=3/2,h=10,$fn=32,center=true);
-% translate([rod_diam,rod_frame_gap/2+rod_diam/2,height/2]) cube([1,rod_frame_gap,1],center=true);
-
-z_endstop_holder();
+translate([40,0,0]) {
+  //z_endstop_holder();
+}
