@@ -11,7 +11,7 @@ rear  = 1;
 da6 = 1 / cos(180 / 6) / 2;
 
 clearance       = 0.25;
-frame_thickness = 6.15;
+frame_thickness = 6.25;
 rod_diam        = 8 + clearance;
 rod_frame_gap   = 24.75;
 rod_frame_center_to_center = rod_frame_gap + frame_thickness/2 + rod_diam/2;
@@ -25,7 +25,7 @@ thickness = 3;
 height    = 10;
 
 extrusion_width  = 0.5;
-extrusion_height = 0.3;
+extrusion_height = 0.24;
 
 module z_endstop_holder() {
   difference() {
@@ -105,7 +105,7 @@ module magnetic_z_endstop_holder() {
   nut_diam    = 5.5 + padding;
   nut_height  = 5.5;
   screw_diam  = 3 + padding;
-  rod_diam    = 8 + padding;
+  rod_diam    = 8 + padding*2;
 
   zip_tie_width     = 3;
   zip_tie_thickness = 2;
@@ -163,13 +163,29 @@ module magnetic_z_endstop_holder() {
     // frame slot // FIXME -- frame is not lined up, the slot needs to be more open to the left
     translate([frame_hole_width/2,rod_frame_center_to_center,0]) {
       cube([frame_hole_width*2,frame_thickness,height*2],center=true);
+
+      // bevel in case of squashed layers
+      translate([0,0,-body_height/2-extrusion_height]) {
+        hull() {
+          cube([frame_hole_width*2,frame_thickness,extrusion_height*6],center=true);
+          cube([frame_hole_width*2+extrusion_height*3,frame_thickness+extrusion_height*3,extrusion_height*2],center=true);
+        }
+      }
     }
 
     // smooth rod
     hull() {
       hole(rod_diam,body_height+1,32);
+
       translate([-rod_diam/2+clamp_gap_width/2,rod_diam/2,0]) {
         cube([clamp_gap_width,rod_diam/2,height+1],center=true);
+      }
+    }
+    // bevel in case of squashed first layers
+    translate([0,0,-body_height/2-extrusion_height]) {
+      hull() {
+        hole(rod_diam,extrusion_height*6,32);
+        hole(rod_diam+extrusion_height*3,extrusion_height*2,32);
       }
     }
 
@@ -206,8 +222,9 @@ module magnetic_z_endstop_holder() {
       // A3144 endstop recess
       cube([endstop_width,endstop_height,endstop_thickness],center=true);
 
+      // ledge to retain A3144
       translate([0,endstop_height/2,0]) {
-        cube([endstop_width,endstop_height,1],center=true);
+        cube([endstop_width,endstop_height,extrusion_height*2],center=true);
       }
 
       // A3144 enstop wiring recess
