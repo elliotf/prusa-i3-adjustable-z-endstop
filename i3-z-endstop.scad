@@ -11,9 +11,10 @@ rear  = 1;
 da6 = 1 / cos(180 / 6) / 2;
 
 clearance       = 0.25;
-frame_thickness = 6.25;
 rod_diam        = 8 + clearance;
 rod_frame_gap   = 24.75;
+frame_thickness = 6.25;
+frame_hole_depth = rod_diam+thickness+3;
 rod_frame_center_to_center = rod_frame_gap + frame_thickness/2 + rod_diam/2;
 rod_endstop_center_to_center = 16;
 
@@ -28,48 +29,68 @@ extrusion_width  = 0.5;
 extrusion_height = 0.24;
 
 module z_endstop_holder() {
-  module body() {
-    // main body
-    translate([-1*(rod_diam/2+thickness+3),-rod_diam/2-thickness*2,-height/2])
-      cube([rod_diam+thickness*2+3,rod_diam+frame_thickness+rod_frame_gap+thickness*3,height]);
+  padding     = 0.1;
+  nut_diam    = 5.5 + padding;
+  nut_height  = 5.5;
+  rounded_diam = 3;
+  resolution   = 32;
+  gap_width    = 2;
 
-    // endstop mount
-    translate([-rod_endstop_center_to_center+3,3,0])
-      cube([endstop_width+thickness*2+6,endstop_length+thickness*2,height],center=true);
+  module body() {
+    body_width = rod_diam+thickness*2+3;
+    hull() {
+      translate([-1.5,0,0]) {
+        for(side=[left,right]) {
+          translate([(body_width/2-rounded_diam/2)*side,0,0]) {
+            translate([0,rod_frame_center_to_center-frame_thickness/2-rounded_diam/2,0]) {
+              hole(rounded_diam,height,resolution);
+            }
+            translate([0,-rod_diam-nut_diam/2-rod_diam/4-thickness/2+rounded_diam/2,0]) {
+              hole(rounded_diam,height,resolution);
+            }
+          }
+        }
+      }
+      translate([-rod_endstop_center_to_center-endstop_width/2-thickness+rounded_diam/2,3,0]) {
+        for(side=[front,rear]) {
+          translate([0,side*(endstop_length/2+thickness-rounded_diam/2),0]) {
+            hole(rounded_diam,height,resolution);
+          }
+        }
+      }
+    }
+  }
+
+  translate([0,rod_frame_center_to_center,0]) {
+    % cube([20,frame_thickness,20],center=true);
   }
 
   module holes() {
-    // frame slot // FIXME -- frame is not lined up, the slot needs to be more open to the left
-    translate([thickness/2-1.5,rod_frame_center_to_center,0])
-      cube([rod_diam+thickness+3,frame_thickness,height*2],center=true);
-
     // smooth rod slot
-    cylinder(r=(rod_diam+0.25)/2,h=height*2,$fn=72,center=true);
-    //translate([0,-1*(rod_diam),0]) cube([2,rod_diam*2+thickness,height*2],center=true);
-    # translate([0,rod_diam,0]) cube([2,rod_diam*2+thickness,height*2],center=true);
+    hole(rod_diam,height+1,12);
 
     // clamp screw shaft
-    translate([0,rod_diam,0]) rotate([90,0,0]) rotate([0,90,0]) {
-      cylinder(r=3.1*da6,h=rod_diam+thickness*4,$fn=6,center=true);
-
-      translate([3,height/2,0])
-        % cylinder(r=3.1*da6,h=rod_diam+thickness*4,$fn=6,center=true);
+    translate([0,-rod_diam,0]) {
+      rotate([0,90,0]) {
+        hole(3.1,rod_diam+thickness*4,6);
+      }
     }
 
-    translate([0,rod_diam,0]) {
-      // captive clamp nut
-      translate([-rod_diam/2-thickness+2,0,0]) {
-        rotate([0,90,0]) cylinder(r=5.5*da6,h=3,$fn=6,center=true);
-        translate([0,0,height/2]) cube([3,5.5,height],center=true);
+    translate([0,-rod_diam,0]) {
+      cube([gap_width,rod_diam*2+thickness,height*2],center=true);
+
+      translate([-gap_width/2-thickness-nut_height/2,0,0]) {
+        rotate([0,90,0]) {
+          hole(nut_diam,nut_height,6);
+        }
+        translate([0,0,height/2]) {
+          cube([nut_height,nut_diam,height],center=true);
+        }
       }
 
       // clamp screw recess
-      translate([rod_diam/2+thickness/1.5,0,0]) rotate([90,0,0]) rotate([0,90,0]) cylinder(r=6.5*da6,h=5,$fn=6,center=true);
+      //translate([rod_diam/2+thickness/1.5,0,0]) rotate([90,0,0]) rotate([0,90,0]) cylinder(r=6.5*da6,h=5,$fn=6,center=true);
     }
-
-    // empty space between rod clamp and frame
-    translate([0,rod_frame_gap/2+4+thickness,0])
-      cube([rod_diam+thickness+3,rod_frame_gap-thickness*2-8,height*2],center=true);
 
     // endstop stuffs
     translate([-16,3,0]) {
@@ -503,13 +524,13 @@ module hinged_magnetic_z_endstop_holder() {
 }
 
 translate([0,0,0]) {
-  hinged_magnetic_z_endstop_holder();
+  //hinged_magnetic_z_endstop_holder();
 }
 
-translate([40,0,0]) {
+translate([0,0,0]) {
   //magnetic_z_endstop_holder();
 }
 
-translate([40,0,0]) {
-  //z_endstop_holder();
+translate([0,0,0]) {
+  z_endstop_holder();
 }
